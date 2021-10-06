@@ -52,18 +52,17 @@
 % Title
 % ############################################################################
 
-\title{LITERATURE REVIEW: --- Your Project Title ---}
+\title{LITERATURE REVIEW: Implementation of the Parallel Algorithm for Planar Subgraph Isomorphism}
 
 
 % ############################################################################
-% Author(s) (no blank lines !)
 \author{
 % ############################################################################
-John Doe\\
+Marc Vicuna\\
 School of Computer Science\\
 Carleton University\\
 Ottawa, Canada K1S 5B6\\
-{\em John-Doe@scs.carleton.ca}
+{\em marcvicuna@cmail.carleton.ca}
 % ############################################################################
 } % end-authors
 % ############################################################################
@@ -76,22 +75,53 @@ Ottawa, Canada K1S 5B6\\
 \section{Introduction} \label{intro}
 % ############################################################################
 
-Introduce your project topic (start from parallel computing in
-general and lead to your particular topic). Describe what you
-intend to achieve in your project.
+The Subgraph Isomorphism problem  consists of looking for the occurrence of a pattern graph $H$ with $k$ vertices in a target graph $G$ with $n$ vertices. Subgraph Isomorphism is a generalization of many NP-complete problems, such as finding a Maximum Clique, Longest Path or Hamiltonian Cycle. Thus, the Subgraph Isomorphism is itself NP-complete\cite{NPhard}, but it is also proven to be NP-complete in subcases of bounded degree graphs\cite{bounded} and planar graphs\cite{planar}. Planar Subgraph Isomorphism algorithms have a large scope of application, including graph databases\cite{graphdatabases}, electronic design\cite{electronic} and astronomy\cite{astronomy}.
+
+The latter case, the Planar Subgraph Isomorphism problem, where both the target graph $G$ is planar, has seen some interesting developments. Recently, the publication \textit{Parallel Planar Subgraph Isomorphism and Vertex Connectivity}\cite{lukas2020} gave an improved algorithm for this problem, with an original set of techniques. utilizing parallel computing and fixed-parameter tractable (FPT) techniques. 
+
+We implemented the algorithm to verify the improved bounds of the algorithm and optimize the work time, to evaluate its use in practice. We focus on implementing the algorithm, confirming or infirming theoretical results and finding implementation-driven efficiency improvements.
 
 
 % ############################################################################
 \section{Literature Review} \label{litrev}
 % ############################################################################
 
-Give an overview of the relevant literature. Cite all relevant
-papers, like \cite{DEL07}, \cite{PD07}, \cite{DER07}, \cite{LDR07},
-\cite{DLX06}, \cite{CDE06}, and \cite{DFL06}. Outline for each paper
-the relevant results in relation to your project. Make sure that you
-don't just list all relevant papers in random order. Devise a scheme
-to group papers by subject. The goal is to present to the reader the
-state-of-the-art in the field selected for your project.
+\subsection{Planar Subgraph Isomorphism}
+At time of publication, the best algorithms for Planar Subgraph Isomorphism are listed in Table \ref{tab:bounds} (found in \cite{lukas2020}), with their bounds on work and depth. Note the complexity is written with $n$ as vertex number in $G$, and $k$ as vertex number in $H$. In practice, $n$ is much greater than $k$, thus, algorithms presented relatively prioritize lowering complexity in $n$.
+
+\begin{table}[ht]
+  \begin{center}
+    \caption{Bounds for deciding planar subgraph isomorphism}
+    \label{tab:table1}
+    \begin{tabular}{lcc}
+      & \textbf{Work} & \textbf{Depth}\\
+      \hline
+      Alon et al.*\cite{colorCoding} & $e^kn^{\Theta(\sqrt{k})}\log n$ & $\Theta(k \log n)$\\  
+      Eppstein \cite{eppstein} & $O(2^{3k \log_2(3k+1)}n$ & $\Theta(kn)$\\
+      Dorn \cite{dorn} & $O(2^{18.81k}n)$ & $O(2^{18.81k}n)$\\
+      Formin et al.*\cite{fomin} & $2^{O(3k\log k)}n^{O(1)}$ & $2^{O(3k\log k)}n^{O(1)}$\\
+      Gianinazzi et al.*\cite{lukas2020} & $O(2^{3k \log_2(3k+1)}n\log n)$ & $O(k \log^2n)$\\
+      \hline
+      \multicolumn{3}{l}{(*) Monte Carlo algorithm, bounds with high probability.}
+      \label{tab:bounds}
+    \end{tabular}
+  \end{center}
+\end{table}
+
+To begin, the Color Coding algorithm \cite{colorCoding} from 1995 is introduces many of the techniques used in the other algorithms, and its principles are still used in many of the current algorithms for finding Maximum Clique (more in Section \ref{review:implementations}). Moreover, it has the lowest bound on depth, keeping it relevant even today. Then, Eppstein's\cite{eppstein} algorithm lowered the work bound greatly and instituted the structural foundations for all the other algorithms (especially Gianinazzi's algorithm). Both Dorn\cite{dorn} and Formin's\cite{fomin} algorithms improve on the $k$ work complexity while worsening the $k$ depth complexity, but Formin's article also set theoretical lower bounds on the algorithms considering sequential techniques. 
+
+\subsection{Gianinazzi's algorithm}
+To overcome those bounds, Gianinazzi's algorithm changed the playing field by matching Eppstein $k$ work complexity with an improvement in $n$ depth complexity (from linear to logarithmic, at the cost of $n$ near linear work. Whether this is a significant improvement is arguable, but these bounds are obtained through the original use of both parallel and FPT techniques.Contrary to previous algorithms, it is not based on characteristics unique to planar graphs and also works on all minor-closed families of graphs of locally bounded treewidth. Moreover, the algorithm can easily be extended to disconnected pattern graphs and the capacity to list all occurences. 
+
+Moreover, each step of the algorithm is on its own an area of active research (Monte Carlo algorithms, reachability problems, unsupervised clustering), indicating improvement opportunity at any step. Gianinazzi's algorithm has three steps:
+\begin{enumerate}
+    \item Low diameter decomposition of $G$ into vertex-disjoint random clusters. This step allows the parallel execution of subsequent steps.
+    \item Cover with BFS for decomposition to suitable subpaths.
+    \item Using dynamic programming and reachability properties within and between subgraphs of $G$, finding valid partial matches.
+\end{enumerate}
+We refer to these steps as Step 1, Step 2 and Step 3.
+\subsection{Implementations} \label{review:implementations}
+Implementations of the Subgraph Isomorphism algorithms are numerous, the latest of which the VF2++ algorithm\cite{implementationVF2}, with high efficiency. However, implementations optimized for solving the planar case are scarce, . However, techniques found in the algorithms for Planar Subgraph Isomorphism are found in some implementation of Maximum Clique problems, as shown here: \cite{cliqueRecent2} \cite{lukas2021} \cite{groversalgo}.
 
 
 % ############################################################################
